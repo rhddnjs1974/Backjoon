@@ -7,7 +7,6 @@ def find(x):
         parent[x] = find(parent[x])
     return parent[x]
 
-# 두 원소가 속한 집합을 합치기
 def union(a, b):
     a = find(a)
     b = find(b)
