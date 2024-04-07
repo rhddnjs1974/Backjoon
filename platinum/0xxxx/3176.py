@@ -2,7 +2,7 @@
 import sys
 input = sys.stdin.readline
 sys.setrecursionlimit(10**5)
-LOG = 5 #2**17 = 131072
+LOG = 17 #2**17 = 131072
 def tree(node,depth):
     visit[node] = 1
     dep[node] = depth
@@ -34,26 +34,39 @@ for i in range(1,LOG):
 
 m = int(input())
 
-print(parent)
 
 for i in range(m):
     x,y = map(int,input().split())
+    mi = 1e9
+    ma = 0
 
     if dep[x] > dep[y]:
         x,y = y,x
 
     for j in range(LOG-1,-1,-1):
         if dep[y] - dep[x] >= 2**j:
-            y = parent[y][j]
+            mi = min(mi, parent[y][j][1])
+            ma = max(ma, parent[y][j][2])
+            y = parent[y][j][0]
 
     if x==y:
-        print(x)
+        print(mi,ma)
         continue
 
     for i in range(LOG-1,-1,-1):
-        if parent[x][i] != parent[y][i]:
-            x = parent[x][i]
-            y = parent[y][i]
+        if parent[x][i][0] != parent[y][i][0]:
 
-    print(parent[x][0])
+            mi = min(mi, parent[x][i][1])
+            ma = max(ma, parent[x][i][2])
+
+            mi = min(mi, parent[y][i][1])
+            ma = max(ma, parent[y][i][2])
+            x = parent[x][i][0]
+            y = parent[y][i][0]
+
+    mi = min(mi, parent[x][0][1])
+    ma = max(ma, parent[x][0][2])
+    mi = min(mi, parent[y][0][1])
+    ma = max(ma, parent[y][0][2])
+    print(mi,ma)
 
