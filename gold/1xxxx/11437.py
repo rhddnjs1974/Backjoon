@@ -1,5 +1,6 @@
 import sys
 input = sys.stdin.readline
+sys.setrecursionlimit(10**5)
 
 def tree(node,p):
     parent[node] = p
@@ -23,6 +24,9 @@ m = int(input())
 
 for i in range(m):
     x,y = map(int,input().split())
+    if x==y:
+        print(x)
+        continue
     x_parent = [0,x]
     y_parent = [0,y]
 
