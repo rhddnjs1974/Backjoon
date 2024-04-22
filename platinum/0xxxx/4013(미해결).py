@@ -41,6 +41,8 @@ def topology_sort():
     q.append(scc_index[s])
     dp[scc_index[s]] = atm_scc[scc_index[s]]
 
+
+
     while q:
         now = q.popleft()
         visit2[now] = 1
@@ -103,8 +105,7 @@ for i,j in arr:
 dp = [0]*(m+1)
 
 visit2 = [0]*(m+1)
-
-
+s = 1
 x = topology_sort()
 
 ans = 0
