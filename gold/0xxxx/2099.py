@@ -8,7 +8,8 @@ def power(a,b):
     if b==1:
         for i in range(n):
             for j in range(n):
-                a[i][j] %= p
+                if a[i][j]>p:
+                    a[i][j] = 1
         return a
 
     tmp = power(a,b//2)
@@ -25,14 +26,24 @@ def mat_mul(A,B):
         for j in range(n):
             for k in range(n):
                 C[i][j] += A[i][k] * B[k][j]
-            C[i][j] %= p
+            if C[i][j]>p:
+                C[i][j] = 1
     return C
 
-n, b = map(int,input().split())
-a = []
-for i in range(n):
-    a.append(list(map(int,input().split())))
+n,k,m = map(int,input().split())
 
-array = power(a,b)
-for i in array:
-    print(*i)
+a = [[0]*n for i in range(n)]
+for i in range(n):
+    u,v = map(int,input().split())
+    a[i][u-1] = 1
+    a[i][v-1] = 1
+
+array = power(a,k)
+
+
+for i in range(m):
+    a,b = map(int,input().split())
+    if array[a-1][b-1]==0:
+        print("life")
+    else:
+        print("death")

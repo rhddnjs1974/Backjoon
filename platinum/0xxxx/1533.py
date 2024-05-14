@@ -2,7 +2,7 @@ import sys
 input = sys.stdin.readline
 sys.setrecursionlimit(10**5)
 ########################################
-p = 1000
+p = 1000003
 def power(a,b):
     global n,p
     if b==1:
@@ -28,11 +28,34 @@ def mat_mul(A,B):
             C[i][j] %= p
     return C
 
-n, b = map(int,input().split())
-a = []
+n, S, E, T = map(int,input().split())
+arr = []
 for i in range(n):
-    a.append(list(map(int,input().split())))
+    s = input().rstrip()
+    arr.append([])
+    for j in s:
+        j = int(j)
+        arr[i].append(j)
 
-array = power(a,b)
-for i in array:
-    print(*i)
+
+a = [[0]*n*5 for i in range(n*5)]
+for i in range(n*5):
+    if i%5==0:
+        continue
+    a[i][i-1] = 1
+
+for i in range(n):
+    for j in range(n):
+        if arr[i][j]==0:
+            continue
+        t = arr[i][j]
+        a[i*5][j*5+t-1] = 1
+
+n*=5
+array = power(a,T)
+
+S-=1
+E-=1
+S*=5
+E*=5
+print(array[S][E])
