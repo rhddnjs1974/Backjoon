@@ -16,4 +16,24 @@ def phi(n):
 
 
 n = int(input())
-print(int(phi(n)))
+
+flag = 0
+for i in range(1,n+1):
+    if i*i>n:
+        break
+    if n%i!=0:
+        continue
+    m = n//i
+    if phi(i)==m:
+        print(i)
+        flag = 1
+        break
+
+    m = n//m
+    if phi(n//i)==m:
+        print(n//i)
+        flag = 1
+        break
+
+if flag==0:
+    print(-1)
