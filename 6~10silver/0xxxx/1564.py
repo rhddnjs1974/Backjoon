@@ -1,0 +1,12 @@
+import sys
+input = sys.stdin.readline
+n = int(input())
+
+x=1
+for i in range(2,n+1):
+    x*=i
+    while(x%10==0):
+        x//=10
+    x %= 1000000000000000000000
+
+print(str(x)[-5:])

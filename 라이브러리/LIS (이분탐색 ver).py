@@ -5,7 +5,7 @@ from bisect import bisect_left,bisect_right
 
 N = int(input())
 A = list(map(int,input().split()))
-LIS = [0]
+LIS = [-100000] #가장 작은값보다 작은값
 
 for i in A:
     point = bisect_left(LIS,i)
