@@ -1,6 +1,9 @@
-MOD = 100000000
+from collections import Counter
+MOD = 1000000007
 
-def mod_pow(x: int, p: int, mod: int = MOD) -> int:
+def mod_pow(x: int, p: int, mod=None) -> int:
+    if mod is None:
+        mod = MOD
     x %= mod
     res = 1
     while p:
@@ -156,17 +159,97 @@ def det(n: int, M: List[Tuple[int, int, int]]) -> int:
 
 
 ############################################
+def egcd(a, b):
+    if b == 0:
+        return (a, 1, 0)
+    g, x, y = egcd(b, a % b)
+    return (g, y, x - (a // b) * y)
 
-n,k = map(int,input().split())
-arr =[1,1]
-for i in range(100):
-    arr.append(arr[-1]+arr[-2]+1)
+def inv_mod(a, mod):
+    a %= mod
+    g, x, _ = egcd(a, mod)
+    return x % mod
 
-d = [1]
-for i in range(1,100):
-    d.append(d[-1]+mod_pow(arr[i],k))
+def crt_pair(a1, m1, a2, m2):
+    a1 %= m1
+    a2 %= m2
+    t = (a2 - a1) % m2
+    k = (t * inv_mod(m1, m2)) % m2
+    return a1 + m1 * k
 
-x = guess_nth_term(d, n)
+##############################################
+def leonardo_mod(S, mod):
+    L = [0] * S
+    if S >= 1: L[0] = 1 % mod
+    if S >= 2: L[1] = 1 % mod
+    for i in range(2, S):
+        L[i] = (L[i-1] + L[i-2] + 1) % mod
+    return L
 
-print("%09d"%(x))
+n, k = map(int, input().split())
 
+S = 60000
+MOD = 1000000007
+LmodP = leonardo_mod(S, MOD)
+
+PRIMES = [1000000007, 998244353, 1000000009]
+
+def build_d_under_current_MOD(Lmod):
+    d = [1]
+    for i in range(1, S):
+        d.append((d[-1] + mod_pow(Lmod[i], k)) % MOD)
+    return d
+
+recs = []
+for p in PRIMES:
+    MOD = p
+    Lmod = leonardo_mod(S, MOD)
+    d = build_d_under_current_MOD(Lmod)
+    rec = berlekamp_massey(d)
+    rec = rec[:k+2]
+    recs.append((p, rec))
+
+
+L = Counter(len(r) for _, r in recs).most_common(1)[0][0]
+
+good = [(p, r) for (p, r) in recs if len(r) == L]
+
+
+Mbig = 1
+coef = [0] * L
+for p, r in good:
+    if Mbig == 1:
+        Mbig = p
+        coef = [x % p for x in r]
+    else:
+        new = [0] * L
+        for i in range(L):
+            new[i] = crt_pair(coef[i], Mbig, r[i], p)
+        coef = new
+        Mbig *= p
+
+half = Mbig // 2
+coef = [x - Mbig if x >= half else x for x in coef]
+
+MOD2 = 512
+MOD5 = 1953125
+
+def nth_under(mod_target):
+    global MOD
+    MOD = mod_target
+
+    rec_t = [c % MOD for c in coef] 
+
+    LmodT = leonardo_mod(L, MOD)
+    dp = [0] * L
+    dp[0] = 1 % MOD
+    for i in range(1, L):
+        dp[i] = (dp[i-1] + pow(LmodT[i], k, MOD)) % MOD
+
+    return get_nth(rec_t, dp, n)
+
+a2 = nth_under(MOD2)
+a5 = nth_under(MOD5)
+
+x = crt_pair(a2, MOD2, a5, MOD5) % 1000000000
+print("%09d" % x)
