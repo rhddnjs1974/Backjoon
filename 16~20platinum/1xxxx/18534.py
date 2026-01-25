@@ -58,11 +58,19 @@ def dist(x, y):
     w = lca(x, y)
     return dep[x] + dep[y] - 2 * dep[w]
 
-def up_k(v, k):
-    # v를 k칸 위 조상으로 올림
-    for j in range(LOG):
-        if k & (1 << j):
-            v = parent[v][j]
-    return v
 
 ################################################
+
+n, q = map(int, input().split())
+graph = [[] for _ in range(n + 1)]
+for _ in range(n - 1):
+    u, v = map(int, input().split())
+    graph[u].append(v)
+    graph[v].append(u)
+
+lca_init(n, graph, 1)
+
+for _ in range(q):
+    r, p = map(int, input().split())
+    d = dist(r, p)
+    print(n + d * (d + 1) // 2)

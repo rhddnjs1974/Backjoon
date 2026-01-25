@@ -16,18 +16,22 @@ graph = []
 def tree(node, p, depth):
     parent[node][0] = p
     dep[node] = depth
+    s = 1
     for nxt in graph[node]:
         if nxt != p:
             tree(nxt, node, depth + 1)
+            s += sz[nxt]
+    sz[node] = s
 
 def lca_init(n, g, root=1):
-    global LOG, parent, dep, graph
+    global LOG, parent, dep, graph,sz
     graph = g
     LOG = (n).bit_length()  # 2^LOG > n
 
     dep = [0] * (n + 1)
     parent = [[0] * LOG for _ in range(n + 1)]
-
+    sz = [0] * (n + 1)
+    
     tree(root, 0, 0)
 
     for i in range(1, LOG):
@@ -64,5 +68,36 @@ def up_k(v, k):
         if k & (1 << j):
             v = parent[v][j]
     return v
-
 ################################################
+
+sz = []
+
+T = int(input().strip())
+for tc in range(1, T + 1):
+    N, Q, R = map(int, input().split())
+    g = [[] for _ in range(N + 1)]
+    for _ in range(N - 1):
+        a, b = map(int, input().split())
+        g[a].append(b)
+        g[b].append(a)
+
+    lca_init(N, g, root=1)
+
+    print("Case #"+str(tc)+":")
+
+    for _ in range(Q):
+        S, U = map(int, input().split())
+        if S == 0:
+            R = U
+        else:
+            X = U
+            if X == R:
+                print(N)
+                continue
+
+            w = lca(X, R)
+            if w != X:
+                print(sz[X])
+            else:
+                child = up_k(R, dep[R] - dep[X] - 1)
+                print(N - sz[child])
