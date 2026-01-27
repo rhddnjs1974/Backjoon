@@ -161,28 +161,14 @@ def det(n: int, M: List[Tuple[int, int, int]]) -> int:
 
 ############################################
 
+MOD = 1000000007
 MOD9 = 10**9
 
-def crt_pair(a1, m1, a2, m2):
-    t = (a2 - a1) % m2
-    inv = mod_pow(m1 % m2, m2 - 2, m2)
-    k = (t * inv) % m2
-    x = a1 + k * m1
-    return x % (m1 * m2), m1 * m2
-
-def crt_list(residues, mods):
-    x = residues[0]
-    m = mods[0]
-    for i in range(1, len(mods)):
-        x, m = crt_pair(x, m, residues[i], mods[i])
-    return x, m
-
-def build_seq_prefix(k, length, mod):
+def build_prefix(k, length, mod):
     Lm2 = 1
     Lm1 = 1
-    A = [0] * length
-    P = [0] * length
     s = 0
+    P = [0] * length
     for i in range(length):
         if i == 0:
             Li = 1
@@ -192,11 +178,9 @@ def build_seq_prefix(k, length, mod):
             Li = (Lm1 + Lm2 + 1) % mod
             Lm2 = Lm1
             Lm1 = Li
-        ai = pow(Li, k, mod)
-        A[i] = ai
-        s = (s + ai) % mod
+        s = (s + pow(Li, k, mod)) % mod
         P[i] = s
-    return A, P
+    return P
 
 n, k = map(int, sys.stdin.readline().split())
 
@@ -205,49 +189,14 @@ if k == 0:
     print(str(ans).zfill(9))
     raise SystemExit
 
-primes = [1000000007, 1000000009, 998244353, 1004535809]
-
 T = 900
-
-recs = []
-deg = None
-
-for p in primes:
-    MOD = p
-    _, Pp = build_seq_prefix(k, T, MOD)
-    rp = berlekamp_massey(Pp)
-    if deg is None:
-        deg = len(rp)
-    else:
-
-        if len(rp) < deg:
-            rp += [0] * (deg - len(rp))
-        elif len(rp) > deg:
-            for j in range(len(recs)):
-                recs[j] += [0] * (len(rp) - deg)
-            deg = len(rp)
-    recs.append([x % p for x in rp])
-
-mods = primes[:]
-Mprod = 1
-for p in mods:
-    Mprod *= p
-
-rec_int = [0] * deg
-for j in range(deg):
-    residues = [recs[i][j] for i in range(len(mods))]
-    x, _ = crt_list(residues, mods)
-    if x > Mprod // 2:
-        x -= Mprod
-    rec_int[j] = x
-
+P = build_prefix(k, T, MOD) 
+rec = berlekamp_massey(P)
+m = len(rec)
 
 MOD = MOD9
-rec9 = [ri % MOD for ri in rec_int]
+rec9 = [x % MOD for x in rec]
 
-
-_, P9 = build_seq_prefix(k, deg, MOD)
-dp = P9[:]
-
-ans = get_nth(rec9, dp, n) % MOD
+P9 = build_prefix(k, m, MOD)
+ans = get_nth(rec9, P9, n) % MOD
 print(str(ans).zfill(9))
