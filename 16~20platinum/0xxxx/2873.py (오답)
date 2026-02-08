@@ -1,0 +1,93 @@
+import sys
+input = sys.stdin.readline
+
+R, C = map(int, input().split())
+a = [list(map(int, input().split())) for _ in range(R)]
+
+if R % 2 == 1:
+    ans = []
+    i = 0
+    while i < R:
+        if i % 2 == 0:
+            ans.append("R" * (C - 1))
+        else:
+            ans.append("L" * (C - 1))
+        if i != R - 1:
+            ans.append("D")
+        i += 1
+    for i in ans:
+        print(i,end="")
+    sys.exit(0)
+
+if C % 2 == 1:
+    ans = []
+    j = 0
+    while j < C:
+        if j % 2 == 0:
+            ans.append("D" * (R - 1))
+        else:
+            ans.append("U" * (R - 1))
+        if j != C - 1:
+            ans.append("R")
+        j += 1
+    for i in ans:
+        print(i,end="")
+    sys.exit(0)
+
+minv = 10**18
+x = 0
+y = 1
+i = 0
+while i < R:
+    j = 0
+    while j < C:
+        if (i + j) % 2 == 1:
+            v = a[i][j]
+            if v < minv:
+                minv = v
+                x = i
+                y = j
+        j += 1
+    i += 1
+
+ans = []
+
+top = 0
+while top < x // 2 * 2:
+    ans.append("R" * (C - 1))
+    ans.append("D")
+    ans.append("L" * (C - 1))
+    ans.append("D")
+    top += 2
+
+left = 0
+row0 = top
+row1 = top + 1
+while left < y // 2 * 2:
+    ans.append("DR")
+    ans.append("UR")
+    left += 2
+    
+if x == row0:
+    ans.append("DR")
+else:
+    ans.append("RD")
+
+left = y // 2 * 2 + 1
+
+while left < C - 1:
+    ans.append("UR")
+    ans.append("DR")
+    left += 2
+
+
+top += 2
+while top < R:
+    ans.append("D")
+    ans.append("L" * (C - 1))
+    ans.append("D")
+    ans.append("R" * (C - 1))
+    top += 2
+
+for i in ans:
+    print(i,end="")
