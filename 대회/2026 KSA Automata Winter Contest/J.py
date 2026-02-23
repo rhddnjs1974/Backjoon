@@ -1,6 +1,7 @@
 import sys
 input = sys.stdin.readline
-sys.setrecursionlimit(10**5)
+sys.setrecursionlimit(3*(10**5))
+from collections import deque
 
 # ---- LCA Library (Sparse Table) ----
 LOG = 0
@@ -75,85 +76,215 @@ def union(a, b):
     else:
         parent_uf[a] = b
     
-S = int(input())
+def alice_build_merge_tree(n, w, edges):
+    global parent_uf
+    g = [[] for _ in range(n + 1)]
+    for u, v in edges:
+        g[u].append(v)
+        g[v].append(u)
 
-if S == 1: #앨리스
-    T = int(input())
+    order = list(range(1, n + 1))
+    order.sort(key=lambda x: w[x], reverse=True)
+
+    active = [False] * (n + 1)
+
+    parent_uf = list(range(n + 1))
+
+    cart_root = [0] * (n + 1)
+    parH = [0] * (n + 1)
+
+    for v in order:
+        active[v] = True
+        cart_root[v] = v
+
+        re = []
+        for to in g[v]:
+            if active[to]:
+                re.append(find(to))
+
+        uniq = []
+        seen = set()
+        for r in re:
+            if r not in seen:
+                seen.add(r)
+                uniq.append(r)
+
+        for c in uniq:
+            r = cart_root[c]
+            parH[r] = v
+
+        base = v
+        for c in uniq:
+            union(base, c)
+            base = find(base)
+        cart_root[find(base)] = v
+
     out = []
+    for x in range(1, n + 1):
+        if parH[x] != 0:
+            out.append((parH[x], x))
+    return out
 
+# 밥 용
+
+def bfs_far(n, g, start):
+    dist = [-1] * (n + 1)
+    par = [0] * (n + 1)
+    q = deque([start])
+    dist[start] = 0
+    last = start
+    while q:
+        v = q.popleft()
+        last = v
+        for to in g[v]:
+            if dist[to] != -1:
+                continue
+            dist[to] = dist[v] + 1
+            par[to] = v
+            q.append(to)
+    return last, par, dist
+
+def diameter_path(n, g):
+    u, trash, trash2 = bfs_far(n, g, 1)
+    v, par, trash = bfs_far(n, g, u)
+    path = []
+    cur = v
+    while cur != 0:
+        path.append(cur)
+        if cur == u:
+            break
+        cur = par[cur]
+    path.reverse()
+    return u, v, path
+
+def comp_sizes_around(n, g, r):
+    se = [False] * (n + 1)
+    se[r] = True
+    co = []
+    for nb in g[r]:
+        if se[nb]:
+            continue
+        q = deque([nb])
+        se[nb] = True
+        nodes = [nb]
+        while q:
+            v = q.popleft()
+            for to in g[v]:
+                if to == r or se[to]:
+                    continue
+                se[to] = True
+                q.append(to)
+                nodes.append(to)
+        co.append((len(nodes), nb, nodes))
+    return co
+
+def farthest_in_subset(n, g, start, banned, allow):
+    dist = [-1] * (n + 1)
+    q = deque()
+    if start == banned or start not in allow:
+        start = next(iter(allow))
+    dist[start] = 0
+    q.append(start)
+    last = start
+    while q:
+        v = q.popleft()
+        last = v
+        for to in g[v]:
+            if to == banned or dist[to] != -1:
+                continue
+
+            dist[to] = dist[v] + 1
+            q.append(to)
+    return last
+
+
+def bob_find_root(n, g, ask):
+    u, v, path = diameter_path(n, g)
+    L = len(path) - 1
+
+    used = 0
+    if L % 2 == 0:
+        r0 = path[L // 2]
+    else:
+        c1 = path[L // 2]
+        c2 = path[L // 2 + 1]
+        ans = ask(c1, c2)
+        used = 1
+        r0 = ans
+
+    comps = comp_sizes_around(n, g, r0)
+    mx = 0
+    big_nodes = None
+    big_nb = 0
+    for sz, nb, nodes in comps:
+        if sz > mx:
+            mx = sz
+            big_nodes = nodes
+            big_nb = nb
+
+    if used < 2 and mx * 2 > n and big_nodes is not None:
+        big_set = set(big_nodes)
+        a = farthest_in_subset(n, g, big_nb, r0, big_set)
+
+        outside = set(range(1, n + 1))
+        outside.discard(r0)
+        for x in big_nodes:
+            outside.discard(x)
+
+        if outside:
+            b0 = next(iter(outside))
+            b = farthest_in_subset(n, g, b0, r0, outside)
+        else:
+            b = big_nb
+
+        ans2 = ask(a, b)
+        r0 = ans2
+
+    return r0
+
+
+S = int(input().strip())
+T = int(input().strip())
+
+if S == 1:
     for _ in range(T):
-        N = int(input())
-        w = [0] + list(map(int, input().split()))
-        g = [[] for _ in range(N + 1)]
-        for _ in range(N - 1):
+        n = int(input().strip())
+        w_list = list(map(int, input().split()))
+        w = [0] * (n + 1)
+        for i in range(1, n + 1):
+            w[i] = w_list[i - 1]
+
+        edges = [tuple(map(int, input().split())) for _ in range(n - 1)]
+        bridges = alice_build_merge_tree(n, w, edges)
+        for a, b in bridges:
+            print(a,b)
+    sys.stdout.flush()
+else:
+    for _ in range(T):
+        n = int(input().strip())
+        g = [[] for _ in range(n + 1)]
+        for _ in range(n - 1):
             u, v = map(int, input().split())
             g[u].append(v)
             g[v].append(u)
 
-        arr = list(range(1, N+1))
-        arr.sort(key=lambda x: w[x])
-
-        parent_uf = [0] * (N+1)
-
-        active = [0] * (N+1)
-        root = [0] * (N+1)
-
-
-        for v in arr:
-            active[v] = 1
-            parent_uf[v] = v
-            root[v] = v
-
-            t = []
-            s = set()
-
-            for u in g[v]:
-                if not active[u]:
-                    continue
-                r = find(u)
-                if r in s:
-                    continue
-                s.add(r)
-                t.append(r)
-
-            for r in t:
-                print(v, root[r])
-
-            for r in t:
-                union(v, r)
-
-            root[find(v)] = v
-
-        sys.stdout.flush()
-
-else: #밥
-    T = int(input())
-
-    for _ in range(T):
-        N = int(input())
-        
-        g = [[] for _ in range(N + 1)]
-        
-        for _ in range(N - 1):
-            u, v = map(int, input().split())
-            g[u].append(v)
-            g[v].append(u)
-
-        cand = 1
-        for i in range(2, N + 1):
-            print("?",cand,i)
+        def ask(i, j):
+            print("?",i,j)
             sys.stdout.flush()
-            
-            ans = int(input())
-            cand = ans
+            x = int(input().strip())
+            if x == -1:
+                sys.exit(0)
+            return x
 
-        root = cand
+        root = bob_find_root(n, g, ask)
 
-        lca_init(N, g, root)
+        lca_init(n, g, root)
 
         print("!")
-        for i in range(1,N+1):
-            for j in range(1,N+1):
-                print(str(lca(i,j)),end=" ")
-            print()
+        sys.stdout.flush()
+        for i in range(1, n + 1):
+            row = []
+            for j in range(1, n + 1):
+                row.append(str(lca(i, j)))
+            print(*row)
         sys.stdout.flush()
