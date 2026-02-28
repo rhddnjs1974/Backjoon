@@ -1,48 +1,45 @@
 import sys
 input = sys.stdin.readline
+import functools
+    
+for testcase in range(int(input())):
+    N = int(input())
+    arr = []
+    for _ in range(N):
+        n,*a = map(int,input().split())
+        now = []
+        for i in range(n-1,-1,-1):
+            if a[i] in now:
+                continue
+            now.append(a[i])
+        arr.append(now)
+    
 
-for _ in range(int(input())):
-    n = int(input())
-    a = list(map(int, input().split()))
-
-    left = [-1] * n
-    right = [-1] * n
-    parent = [-1] * n
-
-    st = []
-    for i in range(n):
-        last = -1
-        while st and a[st[-1]] < a[i]:
-            last = st.pop()
-        if st:
-            parent[i] = st[-1]
-            right[st[-1]] = i
-        if last != -1:
-            parent[last] = i
-            left[i] = last
-        st.append(i)
-
-    root = st[0]
-    while parent[root] != -1:
-        root = parent[root]
-
-    order = []
-    q = [root]
-    while q:
-        u = q.pop()
-        order.append(u)
-        if left[u] != -1:
-            q.append(left[u])
-        if right[u] != -1:
-            q.append(right[u])
-
-    dp = [0] * n
-    for u in order[::-1]:
-        v = 0
-        if left[u] != -1 and v < dp[left[u]]:
-            v = dp[left[u]]
-        if right[u] != -1 and v < dp[right[u]]:
-            v = dp[right[u]]
-        dp[u] = v + 1
-
-    print(n - dp[root])
+    ans = []
+    
+    seen = set()
+    use = [0]*N
+    r= N
+    
+    while (r):
+        f = []
+        for i in range(N):
+            if use[i]==0:
+                f.append(( [u for u in arr[i] if u not in seen], i ))
+        
+        best = [1e7]
+        bestnum = -1
+        for i in f:
+            if i[0]<best:
+                best = i[0][:]
+                bestnum = i[1]
+        
+        use[bestnum]=1
+        r -=1
+        
+        for i in best:
+            if i not in seen:
+                ans.append(i)
+                seen.add(i)
+        
+    print(*ans)
