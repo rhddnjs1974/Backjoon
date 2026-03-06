@@ -6,7 +6,7 @@ for _ in range(int(input())):
     if x == 0:
         print(0)
     elif x > 0:
-        p = 1
+        p = 1   
         while p < x:
             p *= 2
             
