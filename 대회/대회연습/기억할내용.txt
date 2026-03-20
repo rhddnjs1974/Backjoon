@@ -1,0 +1,4 @@
+딕셔너리 깊은 복사
+import copy
+copy.deepcopy()
+
