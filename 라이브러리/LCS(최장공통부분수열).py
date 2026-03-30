@@ -13,14 +13,7 @@ for i in range(n):
         else:
             dp[i + 1][j + 1] = max(dp[i][j + 1], dp[i + 1][j])
 
-
-ma = 0
-for i in dp:
-    for j in i:
-        ma = max(ma,j)
-
-
-print(ma)
+print(dp[n][m])
 
 ans = []
 x = n

@@ -22,6 +22,7 @@ for i in range(n):
     a,b = map(int,input().split())
     arr.append((a,b))
 
+arr = list(set(arr)) # 중복 제거
 arr.sort()
 
 x = convex_hull(arr)

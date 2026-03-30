@@ -13,13 +13,13 @@ def CRT(a1,n1,a2,n2):
     right = (a2-a1)//g
     
     a = moduler_inverse(n2,n1)
-    #b = (1-n1*a)//n2
     
     a *= right
-    #b *= right
-
-    # x = n1*n2*t + a*n1 + a1
-    return a*n1*g+a1,n1*n2*g #나머지, 모듈러
+    
+    r = a*n1*g+a1
+    m = n1*n2*g
+    
+    return r%m, m
 
 def moduler_inverse(n,a): #모듈러 n에 대한 a의 곱셈 역원
     if math.gcd(n,a)!=1:

@@ -17,8 +17,7 @@ for i in range(1,LOG):
 Q = int(input())
 for a in range(Q):
     n, x = map(int,input().split())
-
-
+    
     for i in range(LOG-1,-1,-1):
         if n>=2**i:
             n-=2**i

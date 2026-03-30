@@ -3,7 +3,6 @@ input = sys.stdin.readline
 from bisect import bisect_left,bisect_right
 ########################################
 
-
 N = int(input())
 arr = list(map(int,input().split()))
 arr.sort()

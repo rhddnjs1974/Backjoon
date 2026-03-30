@@ -60,18 +60,21 @@ def ifft(a):
     num = p - (p-1) // n
     for i in range(n):
         a[i] = (a[i] * num) %p
-            
-N=10 #소 범위 최대치
-N = math.log2(N)
-N = 2**(int(N)+2)
 
 
-x = [0]*N
-y = [0]*N
-a = [0]*N
+# x,y 입력 받기
+
+size = 1
+while size < len(x)+len(y)-1:
+    size *= 2
+
+x += [0]*(size-len(x))
+y += [0]*(size-len(y))
+a = [0]*size
+
 fft(x)
 fft(y)
-for i in range(N):
+for i in range(size):
     a[i] = x[i]*y[i]
 
 ifft(a)

@@ -31,7 +31,6 @@ for i in range(T):
         graph[a].append(b)
         graph[b].append(a)
 
-
     visit = [-1]*(N+1)
 
     flag = 0

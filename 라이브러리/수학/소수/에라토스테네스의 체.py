@@ -7,7 +7,7 @@ def primeList(n):
 
     for i in range(2,int(n**0.5)+1):
         if arr[i]==1:
-            for j in range(i*2,n+1,i):
+            for j in range(i*i,n+1,i):
                 arr[j] = 0
 
     return arr
