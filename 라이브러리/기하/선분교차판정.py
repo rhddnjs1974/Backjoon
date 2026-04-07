@@ -1,3 +1,5 @@
+###############기본 선분 교차 판정###################
+
 import sys
 input = sys.stdin.readline
 
