@@ -1,41 +1,46 @@
 import sys
 input = sys.stdin.readline
-sys.setrecursionlimit(10**5)
+
 def find(x):
-    if parent[x] != x:
-        parent[x] = find(parent[x])
-    return parent[x]
+    while parent[x] != x:
+        parent[x] = parent[parent[x]]
+        x = parent[x]
+    return x
 
 def union(a, b):
-    a = find(a)
-    b = find(b)
-    if a < b:
-        parent[b] = a
-    else:
-        parent[a] = b
+    a, b = find(a), find(b)
+    if a == b:
+        return False
+    if rank[a] < rank[b]:
+        a, b = b, a
+    parent[b] = a
+    if rank[a] == rank[b]:
+        rank[a] += 1
+    return True
 
-V = int(input())
+n = int(input())
+planets = []
+for i in range(n):
+    x, y, z = map(int, input().split())
+    planets.append((x, y, z, i))
 
-edge = []
-parent = [0] * (V)
-for i in range(V):
-    parent[i] = i
+edges = []
+for dim in range(3):
+    planets.sort(key=lambda p: p[dim])
+    for i in range(n-1):
+        cost = abs(planets[i][dim]-planets[i+1][dim])
+        edges.append((cost, planets[i][3], planets[i+1][3]))
 
-co = []
-for i in range(V):
-    a,b,c = map(int,input().split())
-    co.append((a,b,c))
-    for j in range(i):
-        d = min(abs(a-co[j][0]),abs(b-co[j][1]),abs(c-co[j][2]))
-        edge.append((d,i,j))
-
-edge.sort()
+edges.sort()
+parent = list(range(n))
+rank = [0] * n
 ans = 0
-
-
-for cost,x,y in edge:
-    if find(x)!=find(y):
-        ans+=cost
-        union(x,y)
+cnt = 0
+for c, a, b in edges:
+    if union(a, b):
+        ans += c
+        cnt += 1
+        if cnt == n-1:
+            break
 
 print(ans)
